@@ -2,10 +2,10 @@
 
 namespace Labwork1.Models
 {
-    public class GraphElement
+    public class Group
     {      
         // v 0.123 0.234 0.345 1.0
-        public List<GeometricVertex> Vertices { get; set; }
+        public List<Vertex> Vertices { get; set; }
 
         // vt 0.500 1 [0]
         public List<VertexTexture> Textures { get; set; }
