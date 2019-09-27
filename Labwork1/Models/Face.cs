@@ -10,5 +10,10 @@ namespace Labwork1.Models
     public class Face
     {     
         public List<FaceElement> FaceElements { get; set; }
+
+        public Face()
+        {
+            Elements = new List<FaceElement>();
+        }
     }
 }

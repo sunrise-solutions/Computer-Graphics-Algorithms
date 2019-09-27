@@ -1,7 +1,7 @@
 ﻿using Labwork1.Models;
 using System;
 
-namespace Labwork1.Parsers
+namespace Labwork1.FileParser
 {
     public static class FaceParser
     {
@@ -15,7 +15,7 @@ namespace Labwork1.Parsers
             foreach (var v in vertices)
             {
                 FaceElement faceElement = ParseFaceElement(v);
-                face.Elements.Add(faceElement);
+                face.FaceElements.Add(faceElement);
             }
             return face;
         }
