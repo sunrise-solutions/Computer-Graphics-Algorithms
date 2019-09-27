@@ -55,6 +55,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FileParser\FaceParser.cs" />
+    <Compile Include="FileParser\VertexParser.cs" />
+    <Compile Include="FileParser\VertexTextureParser.cs" />
+    <Compile Include="StringExtensions.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -64,6 +68,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FileParser\Parser.cs" />
+    <Compile Include="FileParser\VertexNormalParser.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -71,9 +76,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Face.cs" />
-    <Compile Include="Models\GraphElement.cs" />
+    <Compile Include="Models\FaceElement.cs" />
+    <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GraphObject.cs" />
     <Compile Include="Models\Vertex.cs" />
+    <Compile Include="Models\VertexTexture.cs" />
+    <Compile Include="Models\VertexNormal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
