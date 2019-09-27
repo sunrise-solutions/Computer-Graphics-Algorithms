@@ -8,10 +8,10 @@ namespace Labwork1.Models
 {
     public class FaceElement
     {
-        public GeometricVertex GeometricVertex { get; set; };
+        public int VertexId { get; set; }
 
-        public VertexTexture VertexTexture { get; set; };
+        public int VertexTextureId { get; set; }
 
-        public VertexNormal VertexNormal { get; set; };
+        public int VertexNormalId { get; set; }
     }
 }

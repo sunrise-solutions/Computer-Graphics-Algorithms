@@ -10,10 +10,10 @@ namespace Labwork1.Models
     // vn 0.707 0.000 0.707
     public class VertexNormal
     {
-        public int X { get; set; }
+        public float X { get; set; }
 
-        public int Y { get; set; }
+        public float Y { get; set; }
 
-        public int Z { get; set; }
+        public float Z { get; set; }
     }
 }

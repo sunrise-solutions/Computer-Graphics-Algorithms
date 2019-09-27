@@ -10,13 +10,10 @@ namespace Labwork1.Models
     // vt 0.500 1 [0]
     public class VertexTexture
     {
-        // ?
-        public int Id { get; set; }
+        public float U { get; set; }
 
-        public int U { get; set; }
+        public float V { get; set; }
 
-        public int V { get; set; }
-
-        public int W { get; set; }
+        public float W { get; set; }
     }
 }
