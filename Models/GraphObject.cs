@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Labwork1.Models
+namespace Models
 {
     public class GraphObject
     {

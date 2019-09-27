@@ -1,7 +1,8 @@
-﻿using Labwork1.Models;
+﻿using Models;
+using ObjFileParser.Parsers;
 using System.IO;
 
-namespace Labwork1.FileParser
+namespace ObjFileParser
 {
     public class Parser
     {

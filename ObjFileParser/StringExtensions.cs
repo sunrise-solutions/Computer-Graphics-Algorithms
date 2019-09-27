@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Labwork1
+namespace ObjFileParser
 {
     public static class StringExtensions
     {

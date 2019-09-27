@@ -1,7 +1,7 @@
-﻿using Labwork1.Models;
+﻿using Models;
 using System;
 
-namespace Labwork1.FileParser
+namespace ObjFileParser.Parsers
 {
     public static class VertexTextureParser
     {

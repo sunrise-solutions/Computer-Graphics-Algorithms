@@ -1,4 +1,4 @@
-﻿namespace Labwork1.Models
+﻿namespace Models
 {
     // List of vertex normals in (x,y,z) form; normals might not be unit vectors.
     // vn 0.707 0.000 0.707

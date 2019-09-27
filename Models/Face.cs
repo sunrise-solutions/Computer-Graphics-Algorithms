@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Labwork1.Models
+namespace Models
 {
-    // Polygonal face element
+    // Polygonal face element.
     // f 1 2 3
     // f 3/1 4/2 5/3
     // f 6/4/1 3/5/3 7/6/5
@@ -13,7 +13,7 @@ namespace Labwork1.Models
 
         public Face()
         {
-            Elements = new List<FaceElement>();
+            FaceElements = new List<FaceElement>();
         }
     }
 }
