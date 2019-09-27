@@ -2,7 +2,7 @@
 
 namespace Labwork1.Models
 {
-    public class Object
+    public class GraphObject
     {
         public List<Group> Groups { get; set; }
     }
