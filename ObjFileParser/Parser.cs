@@ -6,8 +6,9 @@ namespace ObjFileParser
 {
     public class Parser
     {
+        bool isLastLineAFace = false;
         GraphObject graphObject = new GraphObject();
-        Group group = new Group();
+        Group group;
 
         public GraphObject ParseFile(string filePath)
         {            
@@ -18,6 +19,7 @@ namespace ObjFileParser
                     using (StreamReader sr = new StreamReader(bs))
                     {
                         string line;
+                        group = new Group();
                         while ((line = sr.ReadLine()) != null)
                         {
                             ParseLine(line);
@@ -36,9 +38,17 @@ namespace ObjFileParser
                 return;
             }
 
+            string data = null;
             var fields = line.Trim().Split(null, 2);
             var keyword = fields[0].Trim();
-            var data = fields[1].Trim();
+            if (fields.Length > 1)
+            {
+                data = fields[1].Trim();
+            }
+            else
+            {
+                return;
+            }   
 
             ParseLine(keyword, data);
         }
@@ -48,6 +58,12 @@ namespace ObjFileParser
             switch (keyword)
             {
                 case "v":
+                    if (isLastLineAFace)
+                    {
+                        graphObject.Groups.Add(group);
+                        group = new Group();
+                        isLastLineAFace = false;
+                    }                  
                     group.Vertices.Add(VertexParser.Parse(data));
                     break;
                 case "vt":
@@ -58,6 +74,7 @@ namespace ObjFileParser
                     break;
                 case "f":
                     group.Faces.Add(FaceParser.Parse(data));
+                    isLastLineAFace = true;
                     break;
                 default:
                     break;
