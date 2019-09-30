@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Labwork1"
         mc:Ignorable="d"
+        Loaded="LoadWindow"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Image Name="GraphicModel"></Image>
     </Grid>
 </Window>
