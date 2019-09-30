@@ -24,6 +24,7 @@ namespace Labwork1
     public partial class MainWindow : Window
     {
         string filePath = @"..\..\..\obj_files\cat.obj";
+        int windowWidth = 1500, windowHeight = 700, dx = 500, dy = 500;
         public MainWindow()
         {
             InitializeComponent();
@@ -46,13 +47,13 @@ namespace Labwork1
                     {
                         index = (face.FaceElements.ElementAt(i).VertexIndex != -2) ? face.FaceElements.ElementAt(i).VertexIndex : (group.Vertices.Count - 1);
                         vertex1 = group.Vertices.ElementAt(index);
-                        pixels.AddRange(Bresenham.GetPixels((int)vertex0.X, (int)vertex0.Y, (int)vertex1.X, (int)vertex1.Y));
+                        pixels.AddRange(Bresenham.GetPixels((int)vertex0.X + dx, (int)vertex0.Y * (-1) + dy, (int)vertex1.X + dx, (int)vertex1.Y * (-1) + dy));
                         vertex0 = vertex1;
                     }
                     vertex1 = group.Vertices.ElementAt(face.FaceElements.ElementAt(0).VertexIndex);
-                    pixels.AddRange(Bresenham.GetPixels((int)vertex0.X, (int)vertex0.Y, (int)vertex1.X, (int)vertex1.Y));
+                    pixels.AddRange(Bresenham.GetPixels((int)vertex0.X + dx, (int)vertex0.Y * (-1) + dy, (int)vertex1.X + dx, (int)vertex1.Y * (-1) + dy));
                 }
-                GraphicModel.Source = PixelDrawing.GetBitmap(100, 100, pixels);
+                GraphicModel.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels);
             }
         }
     }
