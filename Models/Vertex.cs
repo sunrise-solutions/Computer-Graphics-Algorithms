@@ -11,5 +11,10 @@
         public float Z { get; set; }
 
         public float W { get; set; }
+
+        public Vertex()
+        {
+            W = 1;
+        }
     }
 }

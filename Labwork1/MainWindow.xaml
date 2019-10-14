@@ -8,6 +8,8 @@
         Loaded="LoadWindow"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Image Name="GraphicModel"></Image>
+        <Button Click="ImageButton_Click">
+            <Image Name="GraphicModel"></Image>
+        </Button>
     </Grid>
 </Window>
