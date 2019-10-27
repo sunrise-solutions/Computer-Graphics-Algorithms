@@ -20,47 +20,54 @@ namespace Labwork1
             long pBackBuffer = 0;
             long backBufferStride = 0;
 
-            Application.Current.Dispatcher.Invoke(() =>
+            try
             {
                 writeableBitmap.Lock();
                 pBackBuffer = (long)writeableBitmap.BackBuffer;
                 backBufferStride = writeableBitmap.BackBufferStride;
-            });
 
-            unsafe
-            {
-                foreach(Pixel pixel in pixels)
+                //Random rand = new Random();
+                //for (int x = 0; x < writeableBitmap.PixelWidth; x++)
+                //{
+                //    for (int y = 0; y < writeableBitmap.PixelHeight; y++)
+                //    {
+                //        int alpha = 255;
+                //        int red = 255;
+                //        int green = 255;
+                //        int blue = 255;
+
+                //        // Set the pixel value.                    
+                //        byte[] colorData = { (byte)blue, (byte)green, (byte)red, (byte)alpha }; // B G R
+
+                //        Int32Rect rect = new Int32Rect(x, y, 1, 1);
+                //        int stride = (writeableBitmap.PixelWidth * writeableBitmap.Format.BitsPerPixel) / 8;
+                //        writeableBitmap.WritePixels(rect, colorData, stride, 0);
+                //    }
+                //}
+
+                unsafe
                 {
-                    long bufferWithOffset = pBackBuffer + pixel.Y * backBufferStride + pixel.X * writeableBitmap.Format.BitsPerPixel / 8;
-                    *((int*)bufferWithOffset) = pixel.Color.B;
-                    *((int*)bufferWithOffset + 1) = pixel.Color.G;
-                    *((int*)bufferWithOffset + 2) = pixel.Color.R;
-                    *((int*)bufferWithOffset + 3) = pixel.Color.A;
+                    foreach (Pixel pixel in pixels)
+                    {
+                        if (pixel.X > 0 && pixel.X < width && pixel.Y > 0 && pixel.Y < height)
+                        {
+                            long bufferWithOffset = pBackBuffer + pixel.Y * backBufferStride + pixel.X * writeableBitmap.Format.BitsPerPixel / 8;
+                            *((int*)bufferWithOffset) = pixel.Color.B;
+                            *((int*)bufferWithOffset) |= pixel.Color.G << 8;
+                            *((int*)bufferWithOffset) |= pixel.Color.R << 16;
+                            *((int*)bufferWithOffset) |= pixel.Color.A << 24;
+                        }
+                    }
                 }
-            }
 
-            Application.Current.Dispatcher.Invoke(() =>
+            }
+            finally
             {
                 writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));
                 writeableBitmap.Unlock();
-            });
+            }
 
             return writeableBitmap;
-        }
-
-        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-        private static extern void RtlZeroMemory(IntPtr dst, int length);
-
-        public static void ClearWriteableBitmap(WriteableBitmap bmp)
-        {
-            RtlZeroMemory(bmp.BackBuffer, bmp.PixelWidth * bmp.PixelHeight * (bmp.Format.BitsPerPixel / 8));
-
-            bmp.Dispatcher.Invoke(() =>
-            {
-                bmp.Lock();
-                bmp.AddDirtyRect(new Int32Rect(0, 0, bmp.PixelWidth, bmp.PixelHeight));
-                bmp.Unlock();
-            });
         }
     }
 }
