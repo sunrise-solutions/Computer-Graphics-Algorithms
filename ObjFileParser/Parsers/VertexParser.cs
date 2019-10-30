@@ -14,7 +14,7 @@ namespace ObjFileParser.Parsers
             vertex.X = parts[0].ParseInvariantFloat();
             vertex.Y = parts[1].ParseInvariantFloat();
             vertex.Z = parts[2].ParseInvariantFloat();
-            vertex.Z = (parts.Length > 3) ? parts[2].ParseInvariantFloat() : 1;
+            vertex.W = (parts.Length > 3) ? parts[2].ParseInvariantFloat() : 1;
 
             return vertex;
         }

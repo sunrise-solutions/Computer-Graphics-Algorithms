@@ -97,7 +97,7 @@ namespace Labwork1
                         vertex.Z = vectorResult.Z;
                         vertex.W = vectorResult.W;
                     }
-                    Round(graphObject_copy.Groups[0]);
+                    //Round(graphObject_copy.Groups[0]);
 
                     pixels = await GetListAsync(graphObject_copy.Groups[0]);
                     GraphicModel.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels);

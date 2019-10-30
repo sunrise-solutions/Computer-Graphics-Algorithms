@@ -16,7 +16,7 @@ namespace Models
 
         public Vertex()
         {
-            W = 1;
+            //W = 1;
         }
 
         public Vertex(float x, float y, float z, float w)

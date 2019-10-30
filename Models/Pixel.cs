@@ -14,7 +14,7 @@ namespace Models
         {
             X = x;
             Y = y;
-            Color = Color.Blue;
+            Color = Color.LightGreen;
         }
     }
 }
