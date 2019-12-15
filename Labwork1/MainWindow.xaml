@@ -8,8 +8,8 @@
         Loaded="LoadWindow"
         Title="MainWindow" Height="700" Width="1300">
     <Grid>
-        <Image Name="GraphicModel" HorizontalAlignment="Left" Height="638" Margin="5,10,0,0" VerticalAlignment="Top" Width="900"></Image>
-        <Image Name="MiniatureModel" HorizontalAlignment="Right" Height="250" Margin="0,10,10,0" VerticalAlignment="Top" Width="350"></Image>
+        <Image Name="GraphicModel" HorizontalAlignment="Left" Height="650" Margin="10,10,0,0" VerticalAlignment="Top" Width="873"></Image>
+        <Image Name="MiniatureModel" HorizontalAlignment="Right" Height="250" Margin="0,10,10.333,0" VerticalAlignment="Top" Width="368"></Image>
         <Button Content="Run" Click="ImageButton_Click" Margin="1067,595,173.333,22.667" RenderTransformOrigin="-0.079,0.341">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
@@ -20,48 +20,54 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        <GroupBox x:Name="CameraMovement" Header="Camera" HorizontalAlignment="Left" Height="251" Margin="915,330,0,0" VerticalAlignment="Top" Width="171">
+        <GroupBox x:Name="CameraMovement" Header="Camera" HorizontalAlignment="Left" Height="251" Margin="915,330,0,0" VerticalAlignment="Top" Width="171" Background="White">
             <Grid Margin="0,0,0,0">
                 <Label Content="X" HorizontalAlignment="Left" Margin="5,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="29"></Label>
-                <Button Content="II" Click="StopChangeCameraX" Margin="132,13,6.667,195" Height="20"></Button>
+                <Button Content="II" Click="StopChange" Margin="132,13,6.667,195" Height="20"></Button>
                 <Label Content="Y" HorizontalAlignment="Left" Margin="5,35,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="29"/>
-                <Button Content="II" Click="StopChangeCameraY" Margin="132,38,6.667,170" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,38,6.667,170" Height="20"/>
                 <Label Content="Z" HorizontalAlignment="Left" Margin="5,59,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="29"/>
-                <Button Content="II" Click="StopChangeCameraZ" Margin="132,62,6.667,146" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,62,6.667,146" Height="20"/>
                 <Label Content="Around X" HorizontalAlignment="Left" Margin="5,95,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="62"/>
-                <Button Content="II" Click="StopChangeCameraAroundX" Margin="132,98,6.667,110" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,98,6.667,110" Height="20"/>
                 <Label Content="Around Y" HorizontalAlignment="Left" Margin="5,120,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="62"/>
-                <Button Content="II" Click="StopChangeCameraAroundY" Margin="132,123,6.667,85" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,123,6.667,85" Height="20"/>
                 <Label Content="Around Z" HorizontalAlignment="Left" Margin="5,144,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="62"/>
-                <Button Content="II" Click="StopChangeCameraAroundZ" Margin="132,147,6.667,61" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,147,6.667,61" Height="20"/>
+                <Label Content="Field of view" HorizontalAlignment="Left" Margin="5,189,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="78"/>
+                <Button Content="II" Click="StopChange" Margin="132,192,6.667,16" Height="20" RenderTransformOrigin="-0.256,2.133"/>
                 <Button Content=">" Click="ChangeCameraX" Margin="95,13,43.667,195" Height="20"/>
                 <Button Content=">" Click="ChangeCameraY" Margin="95,38,43.667,170" Height="20"/>
                 <Button Content=">" Click="ChangeCameraZ" Margin="95,62,43.667,146" Height="20"/>
                 <Button Content=">" Click="ChangeCameraAroundX" Margin="95,98,43.667,110" Height="20"/>
                 <Button Content=">" Click="ChangeCameraAroundY" Margin="95,123,43.667,85" Height="20"/>
                 <Button Content=">" Click="ChangeCameraAroundZ" Margin="95,147,43.667,61" Height="20"/>
+                <Button Content=">" Click="ChangeFieldOfView" Margin="95,192,43.667,16" Height="20"/>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="ModelMovement" Header="Model" HorizontalAlignment="Left" Height="251" Margin="1094,329,0,0" VerticalAlignment="Top" Width="171">
+        <GroupBox x:Name="ModelMovement" Header="Model" HorizontalAlignment="Left" Height="251" Margin="1094,329,0,0" VerticalAlignment="Top" Width="171" Background="White">
             <Grid Margin="0,0,0,0">
                 <Label Content="X" HorizontalAlignment="Left" Margin="5,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="29"></Label>
-                <Button Content="II" Click="StopChangeModelX" Margin="132,13,6.667,195" Height="20"></Button>
+                <Button Content="II" Click="StopChange" Margin="132,13,6.667,195" Height="20"></Button>
                 <Label Content="Y" HorizontalAlignment="Left" Margin="5,35,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="29"/>
-                <Button Content="II" Click="StopChangeModelY" Margin="132,38,6.667,170" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,38,6.667,170" Height="20"/>
                 <Label Content="Z" HorizontalAlignment="Left" Margin="5,59,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="29"/>
-                <Button Content="II" Click="StopChangeModelZ" Margin="132,62,6.667,146" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,62,6.667,146" Height="20"/>
                 <Label Content="Around X" HorizontalAlignment="Left" Margin="5,95,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="62"/>
-                <Button Content="II" Click="StopChangeModelAroundX" Margin="132,98,6.667,110" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,98,6.667,110" Height="20"/>
                 <Label Content="Around Y" HorizontalAlignment="Left" Margin="5,120,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="62"/>
-                <Button Content="II" Click="StopChangeModelAroundY" Margin="132,123,6.667,85" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,123,6.667,85" Height="20"/>
                 <Label Content="Around Z" HorizontalAlignment="Left" Margin="5,144,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="23" Width="62"/>
-                <Button Content="II" Click="StopChangeModelAroundZ" Margin="132,147,6.667,61" Height="20"/>
+                <Button Content="II" Click="StopChange" Margin="132,147,6.667,61" Height="20"/>
+                <Label Content="Scale" HorizontalAlignment="Left" Margin="5,188,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.534,0.539" Height="29" Width="62"/>
+                <Button Content="II" Click="StopChange" Margin="132,191,6.333,16.333" Height="20"/>
                 <Button Content=">" Click="ChangeModelX" Margin="93,13,45.333,194.333" Height="20"/>
                 <Button Content=">" Click="ChangeModelY" Margin="93,38,45.333,169.333" Height="20"/>
                 <Button Content=">" Click="ChangeModelZ" Margin="93,62,45.333,145.333" Height="20"/>
                 <Button Content=">" Click="ChangeModelAroundX" Margin="93,98,45.333,109.333" Height="20"/>
                 <Button Content=">" Click="ChangeModelAroundY" Margin="93,123,45.333,84.333" Height="20"/>
                 <Button Content=">" Click="ChangeModelAroundZ" Margin="93,147,45.333,60.333" Height="20"/>
+                <Button Content=">" Click="ChangeScale" Margin="93,191,45.333,16.333" Height="20" RenderTransformOrigin="0.511,0.511"/>
             </Grid>
         </GroupBox>
     </Grid>

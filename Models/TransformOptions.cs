@@ -21,6 +21,8 @@ namespace Models
         public float ModelAroundY { get; set; }
         public float ModelAroundZ { get; set; }
 
+        public float FieldOfView { get; set; }
+
         public object Clone()
         {
             return new TransformOptions()
@@ -37,7 +39,8 @@ namespace Models
                 ModelZ = this.ModelZ,
                 ModelAroundX = this.ModelAroundX,
                 ModelAroundY = this.ModelAroundY,
-                ModelAroundZ = this.ModelAroundZ
+                ModelAroundZ = this.ModelAroundZ,
+                FieldOfView = this.FieldOfView
             };
         }
     }

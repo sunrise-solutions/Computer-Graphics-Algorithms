@@ -27,17 +27,17 @@ namespace Labwork1
     public partial class MainWindow : Window
     {
         string filePath = @"..\..\..\obj_files\african_head.obj";
-        string filePathMiniature = @"..\..\..\obj_files\moon.obj";
-        float minScale = 50, maxScale = 200;
+        string filePathMiniature = @"..\..\..\obj_files\african_head.obj";
+        float scale = 50, aspectRation = 1;
         int windowWidth = 2000, windowHeight = 1400, maxDx = 1000, maxDy = 700;
         int miniatureWidth = 1000, miniatureHeight = 700, minDx = 500, minDy = 350;
-        float defaultFieldOfView = (float)(45 * Math.PI / 180), defaultNearPlaneDistance = 1, defaultFarPlaneDistance = 1000;
+        float fieldOfView = (float)(45 * Math.PI / 180), defaultNearPlaneDistance = 1, defaultFarPlaneDistance = 1000;
         bool isApplyOptions = false, isActive = false;
-        bool stopCameraX = false, stopCameraY = false, stopCameraZ = false, stopModelX = false, stopModelY = false, stopModelZ = false,
-            stopCameraAroundX = false, stopCameraAroundY = false, stopCameraAroundZ = false, stopModelAroundX = false, stopModelAroundY = false, stopModelAroundZ = false;
+        int minRange = -200, maxRange = 200;
+        int minAngle = -180, maxAngle = 180;
         float cameraX = 0, cameraY = 0, cameraZ = 0, modelX = 0, modelY = 0, modelZ = 0, cameraAroundX = 0, cameraAroundY = 0, cameraAroundZ = 0, modelAroundX = 0, modelAroundY = 0, modelAroundZ = 0;
         GraphObject globalModel, globalMiniature;
-        System.Windows.Threading.DispatcherTimer timer = new System.Windows.Threading.DispatcherTimer();
+        int delay = 200;
 
         public MainWindow()
         {
@@ -52,23 +52,23 @@ namespace Labwork1
 
         void LoadWindow(object sender, RoutedEventArgs e)
         {
-            miniatureWidth = (int)MiniatureModel.Width;
-            miniatureHeight = (int)MiniatureModel.Height;
+            miniatureWidth = (int)MiniatureModel.Width + 700;
+            miniatureHeight = (int)MiniatureModel.Height + 500;
             minDx = miniatureWidth / 2;
             minDy = miniatureHeight / 2;
 
-            windowWidth = (int)GraphicModel.Width;
-            windowHeight = (int)GraphicModel.Height;
+            windowWidth = (int)GraphicModel.Width + 500;
+            windowHeight = (int)GraphicModel.Height + 500;
             maxDx = windowWidth / 2;
             maxDy = windowHeight / 2;
 
             Parser parser = new Parser();
             globalModel = parser.ParseFile(filePath);
-            DrawModel(globalModel, GraphicModel, maxDx, maxDy, maxScale);
+            DrawModel(globalModel, GraphicModel, maxDx, maxDy, scale * 2);
 
             Parser parser2 = new Parser();
             globalMiniature = parser2.ParseFile(filePathMiniature);
-            DrawModel(globalMiniature, MiniatureModel, minDx, minDy, minScale);
+            DrawModel(globalMiniature, MiniatureModel, minDx, minDy, scale);
         }
 
         async void DrawModel(GraphObject graphObject, Image targetPlace, int dx, int dy, double scale)
@@ -139,7 +139,7 @@ namespace Labwork1
                 {
                     while (value < 10000)
                     {
-                        result = GetResultMatrix(Matrix4x4.CreateTranslation(0, 0, 0), Matrix4x4.CreateRotationX(0), Matrix4x4.CreateRotationY((float)(value)), Matrix4x4.CreateRotationZ(0), Matrix4x4.CreateScale((float)maxScale, (float)maxScale, (float)maxScale));
+                        result = GetResultMatrix(Matrix4x4.CreateTranslation(0, 0, 0), Matrix4x4.CreateRotationX(0), Matrix4x4.CreateRotationY((float)(value)), Matrix4x4.CreateRotationZ(0), Matrix4x4.CreateScale((float)scale * 2, (float)scale * 2, (float)scale * 2));
                         graphObject_copy = (GraphObject)graphObject.Clone();
                         for (int i = 0; i < graphObject_copy.Groups[0].Vertices.Count; i++)
                         {
@@ -158,7 +158,7 @@ namespace Labwork1
                 }
             } else
             {
-                TransformOptions options = GetUserOptions(maxScale);
+                TransformOptions options = GetUserOptions(scale * 2);
                 GraphObject graphObject_copy = (GraphObject)graphObject.Clone();
 
                 Matrix4x4 result, viewport;
@@ -172,14 +172,14 @@ namespace Labwork1
                         Vertex vertex = graphObject_copy.Groups[0].Vertices[i];
                         Vector4 vector = new Vector4(vertex.X, vertex.Y, vertex.Z, vertex.W);
                         Vector4 vectorResult = Vector4.Transform(vector, result);
-                        vectorResult /= vertex.W;
-                        vectorResult = Vector4.Transform(vectorResult, viewport);
+                        //vectorResult /= vertex.W;
+                        //vectorResult = Vector4.Transform(vectorResult, viewport);
                         vertex.X = vectorResult.X;
                         vertex.Y = vectorResult.Y;
                         vertex.Z = vectorResult.Z;
                         vertex.W = vectorResult.W;
                     }
-                    pixels = await GetListAsync(graphObject_copy.Groups[0], 0, 0, 1);
+                    pixels = await GetListAsync(graphObject_copy.Groups[0], maxDx, maxDy, -1);
                     GraphicModel.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels);
                 }
             }
@@ -234,7 +234,7 @@ namespace Labwork1
                 * Matrix4x4.CreateTranslation(options.ModelX, options.ModelY, options.ModelZ);
             Matrix4x4 view = Matrix4x4.CreateTranslation(-new Vector3(options.CameraX, options.CameraY, options.CameraZ))
                 * Matrix4x4.Transpose(Matrix4x4.CreateFromYawPitchRoll(options.CameraAroundX, options.CameraAroundY, options.CameraAroundZ));
-            Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView(defaultFieldOfView, (float)width/height, defaultNearPlaneDistance, defaultFarPlaneDistance);
+            Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView(options.FieldOfView, aspectRation, defaultNearPlaneDistance, defaultFarPlaneDistance);
 
             Matrix4x4 mvp = model * view * projection;
             return mvp;
@@ -250,14 +250,16 @@ namespace Labwork1
                     CameraX = cameraX,
                     CameraY = cameraY,
                     CameraZ = cameraZ,
-                    CameraAroundX = cameraAroundX,
-                    CameraAroundY = cameraAroundY,
-                    CameraAroundZ = cameraAroundZ,
+                    CameraAroundX = (float)(cameraAroundX * Math.PI / 180),
+                    CameraAroundY = (float)(cameraAroundY * Math.PI / 180),
+                    CameraAroundZ = (float)(cameraAroundZ * Math.PI / 180),
                     ModelX = modelX,
                     ModelY = modelY,
                     ModelZ = modelZ,
-                    ModelAroundX = modelAroundX,
-                    ModelAroundZ = modelAroundZ
+                    ModelAroundX = (float)(modelAroundX * Math.PI / 180),
+                    ModelAroundY = (float)(modelAroundY * Math.PI / 180),
+                    ModelAroundZ = (float)(modelAroundZ * Math.PI / 180),
+                    FieldOfView = (float)(fieldOfView * Math.PI / 180),
                     //CameraX = (stopCameraX) ? cameraX : float.Parse(CameraX.Text, CultureInfo.InvariantCulture.NumberFormat),
                     //CameraY = (stopCameraY) ? cameraY : float.Parse(CameraY.Text, CultureInfo.InvariantCulture.NumberFormat),
                     //CameraZ = (stopCameraZ) ? cameraZ : float.Parse(CameraZ.Text, CultureInfo.InvariantCulture.NumberFormat),
@@ -286,14 +288,15 @@ namespace Labwork1
 
         async public void ChangeCameraX(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
             isActive = true;
-            int i = 0;  
+            int i = minRange;  
             while (isActive)
             {
-                cameraX = i;
-                i++;
-                bool check = await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(minScale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+                cameraX = i; i++;
+                if (i > maxRange) { i = minRange; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
             }
 
             //float scaling = (float)scaleSlider.Value;
@@ -317,128 +320,199 @@ namespace Labwork1
             //int yMin = 0;
         }
 
-        public void ChangeCameraY(object sender, RoutedEventArgs e)
+        async public void ChangeCameraY(object sender, RoutedEventArgs e)
         {
-            int i = 0;
-            while(isApplyOptions)
+            if (isActive){ isActive = false; return; }
+            isApplyOptions = true;
+            isActive = true;
+            int i = minRange;
+            while (isActive)
             {
-                cameraY = i;
-                i++;
+                cameraY = i; i++;
+                if (i > maxRange) { i = minRange; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
             }
         }
 
-        public void ChangeCameraZ(object sender, RoutedEventArgs e)
+        async public void ChangeCameraZ(object sender, RoutedEventArgs e)
         {
-            for (int i = -100; i < 100; i++)
+            if (isActive){ isActive = false; return; }
+            isApplyOptions = true;
+            isActive = true;
+            int i = minRange;
+            while (isActive)
             {
-                cameraZ = i;
+                cameraZ = i; i++;
+                if (i > maxRange) { i = minRange; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
             }
-            isApplyOptions = true;
         }
 
-        public void ChangeModelX(object sender, RoutedEventArgs e)
+        async public void ChangeModelX(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
+            isActive = true;
+            int i = minRange;
+            while (isActive)
+            {
+                modelX = i; i++;
+                if (i > maxRange) { i = minRange; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+            }
         }
 
-        public void ChangeModelY(object sender, RoutedEventArgs e)
+        async public void ChangeModelY(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
+            isActive = true;
+            int i = minRange;
+            while (isActive)
+            {
+                modelY = i; i++;
+                if (i > maxRange) { i = minRange; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+            }
         }
 
-        public void ChangeModelZ(object sender, RoutedEventArgs e)
+        async public void ChangeModelZ(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
+            isActive = true;
+            int i = minRange;
+            while (isActive)
+            {
+                modelZ = i; i++;
+                if (i > maxRange) { i = minRange; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+            }
         }
 
-        public void ChangeCameraAroundX(object sender, RoutedEventArgs e)
+        async public void ChangeCameraAroundX(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
+            isActive = true;
+            int i = minAngle;
+            while (isActive)
+            {
+                cameraAroundX = i; i++;
+                if (i > maxAngle) { i = minAngle; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+                System.Threading.Thread.Sleep(delay);
+            }
         }
 
-        public void ChangeCameraAroundY(object sender, RoutedEventArgs e)
+        async public void ChangeCameraAroundY(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
+            isActive = true;
+            int i = minAngle;
+            while (isActive)
+            {
+                cameraAroundY = i; i++;
+                if (i > maxAngle) { i = minAngle; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+                System.Threading.Thread.Sleep(delay);
+            }
         }
 
-        public void ChangeCameraAroundZ(object sender, RoutedEventArgs e)
+        async public void ChangeCameraAroundZ(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
+            isActive = true;
+            int i = minAngle;
+            while (isActive)
+            {
+                cameraAroundZ = i; i++;
+                if (i > maxAngle) { i = minAngle; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+                System.Threading.Thread.Sleep(delay);
+            }
         }
 
-        public void ChangeModelAroundX(object sender, RoutedEventArgs e)
+        async public void ChangeModelAroundX(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
+            isActive = true;
+            int i = minAngle;
+            while (isActive)
+            {
+                modelAroundX = i; i++;
+                if (i > maxAngle) { i = minAngle; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+                System.Threading.Thread.Sleep(delay);
+            }
         }
 
-        public void ChangeModelAroundY(object sender, RoutedEventArgs e)
+        async public void ChangeModelAroundY(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
+            isActive = true;
+            int i = minAngle;
+            while (isActive)
+            {
+                modelAroundY = i; i++;
+                if (i > maxAngle) { i = minAngle; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+                System.Threading.Thread.Sleep(delay);
+            }
         }
 
-        public void ChangeModelAroundZ(object sender, RoutedEventArgs e)
+        async public void ChangeModelAroundZ(object sender, RoutedEventArgs e)
         {
+            if (isActive) { isActive = false; return; }
             isApplyOptions = true;
+            isActive = true;
+            int i = minAngle;
+            while (isActive)
+            {
+                cameraAroundZ = i; i++;
+                if (i > maxAngle) { i = minAngle; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+                System.Threading.Thread.Sleep(delay);
+            }
         }
 
-        public void StopChangeCameraX(object sender, RoutedEventArgs e)
+        async public void ChangeFieldOfView(object sender, RoutedEventArgs e)
+        {
+            if (isActive) { isActive = false; return; }
+            isApplyOptions = true;
+            isActive = true;
+            int i = 1;
+            while (isActive)
+            {
+                fieldOfView = i; i++;
+                if (i > 180) { i = 1; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+                System.Threading.Thread.Sleep(delay);
+            }
+        }
+
+        async public void ChangeScale(object sender, RoutedEventArgs e)
+        {
+            if (isActive) { isActive = false; return; }
+            isApplyOptions = true;
+            isActive = true;
+            float i = 1;
+            while (isActive)
+            {
+                scale = i; i++;
+                if (i > 500) { i = 1; }
+                await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
+                System.Threading.Thread.Sleep(delay);
+            }
+        }
+
+        public void StopChange(object sender, RoutedEventArgs e)
         {
             isActive = false;
-        }
-
-        public void StopChangeCameraY(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeCameraZ(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeModelX(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeModelY(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeModelZ(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeCameraAroundX(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeCameraAroundY(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeCameraAroundZ(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeModelAroundX(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeModelAroundY(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public void StopChangeModelAroundZ(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }
