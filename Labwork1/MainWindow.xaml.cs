@@ -26,8 +26,8 @@ namespace Labwork1
     /// </summary>
     public partial class MainWindow : Window
     {
-        string filePath = @"..\..\..\obj_files\african_head.obj";
-        string filePathMiniature = @"..\..\..\obj_files\african_head.obj";
+        string filePath = @"..\..\..\obj_files\moon.obj";
+        string filePathMiniature = @"..\..\..\obj_files\moon.obj";
         float scale = 100, aspectRation = 1;
         int windowWidth = 2000, windowHeight = 1400, maxDx = 1000, maxDy = 700;
         int miniatureWidth = 1000, miniatureHeight = 700, minDx = 500, minDy = 350;
@@ -229,31 +229,58 @@ namespace Labwork1
                 ZBuffer zBuf = new ZBuffer(width, height);
                 Parallel.ForEach(group.Faces, face =>
                 {
-                    List<Pixel> pixelsForSide = new List<Pixel>();
-                    List<Pixel> pixelsInSide = new List<Pixel>();
-                    Vertex vertex0, vertex1;
-                    int index0, index1;
-                    for (int i = 0; i < face.FaceElements.Count - 1; i++)
+                    if (IsFaceVisible(group.Vertices, face))
                     {
-                        index0 = (face.FaceElements.ElementAt(i).VertexIndex != -2) ? face.FaceElements.ElementAt(i).VertexIndex : (group.Vertices.Count - 1);
-                        index1 = (face.FaceElements.ElementAt(i + 1).VertexIndex != -2) ? face.FaceElements.ElementAt(i + 1).VertexIndex : (group.Vertices.Count - 1);
+                        List<Pixel> pixelsForSide = new List<Pixel>();
+                        List<Pixel> pixelsInSide = new List<Pixel>();
+                        Vertex vertex0, vertex1;
+                        int index0, index1;
+                        for (int i = 0; i < face.FaceElements.Count - 1; i++)
+                        {
+                            index0 = (face.FaceElements.ElementAt(i).VertexIndex != -2) ? face.FaceElements.ElementAt(i).VertexIndex : (group.Vertices.Count - 1);
+                            index1 = (face.FaceElements.ElementAt(i + 1).VertexIndex != -2) ? face.FaceElements.ElementAt(i + 1).VertexIndex : (group.Vertices.Count - 1);
+                            vertex0 = group.Vertices.ElementAt(index0);
+                            vertex1 = group.Vertices.ElementAt(index1);
+                            pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), (int)(vertex0.Z), (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), (int)(vertex1.Z), windowWidth, windowHeight, bitmap, zBuf));
+                        }
+                        index0 = (face.FaceElements.ElementAt(0).VertexIndex != -2) ? face.FaceElements.ElementAt(0).VertexIndex : (group.Vertices.Count - 1);
+                        index1 = (face.FaceElements.ElementAt(face.FaceElements.Count - 1).VertexIndex != -2) ? face.FaceElements.ElementAt(face.FaceElements.Count - 1).VertexIndex : (group.Vertices.Count - 1);
                         vertex0 = group.Vertices.ElementAt(index0);
                         vertex1 = group.Vertices.ElementAt(index1);
-                        pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), (int)(vertex0.Z), (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), (int)(vertex1.Z), windowWidth, windowHeight, bitmap, zBuf));
+                        pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), vertex0.Z, (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), vertex1.Z, windowWidth, windowHeight, bitmap, zBuf));
+                        RastAlgorithm.DrawPixelForRasterization(pixelsForSide, bitmap, zBuf);
+                        //pixels.AddRange(pixelsForSide);
+                        //pixelsInSide.AddRange(RastAlgorithm.DrawPixelForRasterization(pixelsForSide, bitmap, zBuf));
+                        //pixels.AddRange(pixelsInSide);
+                        count++;
                     }
-                    index0 = (face.FaceElements.ElementAt(0).VertexIndex != -2) ? face.FaceElements.ElementAt(0).VertexIndex : (group.Vertices.Count - 1);
-                    index1 = (face.FaceElements.ElementAt(face.FaceElements.Count - 1).VertexIndex != -2) ? face.FaceElements.ElementAt(face.FaceElements.Count - 1).VertexIndex : (group.Vertices.Count - 1);
-                    vertex0 = group.Vertices.ElementAt(index0);
-                    vertex1 = group.Vertices.ElementAt(index1);
-                    pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), vertex0.Z, (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), vertex1.Z, windowWidth, windowHeight, bitmap, zBuf));
-                    RastAlgorithm.DrawPixelForRasterization(pixelsForSide, bitmap, zBuf);
-                    //pixels.AddRange(pixelsForSide);
-                    //pixelsInSide.AddRange(RastAlgorithm.DrawPixelForRasterization(pixelsForSide, bitmap, zBuf));
-                    //pixels.AddRange(pixelsInSide);
-                    count++;
                 });
                 return pixels;
             });
+        }
+
+        private static bool IsFaceVisible(List<Vertex> pointsList, Face face)
+        {
+            bool result = true;
+            int indexPoint1 = (int)face.FaceElements[0].VertexIndex;
+            int indexPoint2 = (int)face.FaceElements[1].VertexIndex;
+            int indexPoint3 = (int)face.FaceElements[2].VertexIndex;
+            Vector4 point1 = new Vector4(pointsList[indexPoint1].X, pointsList[indexPoint1].Y, pointsList[indexPoint1].Z, pointsList[indexPoint1].W);
+            Vector4 point2 = new Vector4(pointsList[indexPoint2].X, pointsList[indexPoint2].Y, pointsList[indexPoint2].Z, pointsList[indexPoint2].W);
+            Vector4 point3 = new Vector4(pointsList[indexPoint3].X, pointsList[indexPoint3].Y, pointsList[indexPoint3].Z, pointsList[indexPoint3].W);
+
+            Vector4 vector1 = point2 - point1;
+            Vector4 vector2 = point3 - point2;
+            Vector3 vector1XYZ = new Vector3(vector1.X, vector1.Y, vector1.Z);
+            Vector3 vector2XYZ = new Vector3(vector2.X, vector2.Y, vector2.Z);
+            Vector3 normal = Vector3.Cross(vector1XYZ, vector2XYZ);
+
+            //if (normal.Z >= 0)
+            //{
+            //    result = false;
+            //}
+
+            return result;
         }
 
         public Matrix4x4 GetOptionsMatrix(TransformOptions options, int width, int height)
