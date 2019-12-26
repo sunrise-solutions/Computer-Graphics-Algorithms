@@ -31,8 +31,32 @@ namespace Models
             Vertices = vertices;
             VertexTextures = textures;
             VertexNormals = normals;
-            Faces = faces;
-        } 
+            Faces = MakeTriangleFaceList(faces);
+        }
+
+        private List<Face> MakeTriangleFaceList(List<Face> list)
+        {
+            List<Face> triangleFaceList = new List<Face>();
+
+            foreach (Face face in list)
+            {
+                if (face.FaceElements.Count < 3)
+                {
+                    throw new ArgumentException("Should be 3 values");
+                }
+
+                for (int i = 1; i < face.FaceElements.Count - 1; i++) // devide face into triangles
+                {
+                    Face triangleFace = new Face();
+                    triangleFace.FaceElements.Add((FaceElement)face.FaceElements[0].Clone());
+                    triangleFace.FaceElements.Add((FaceElement)face.FaceElements[i].Clone());
+                    triangleFace.FaceElements.Add((FaceElement)face.FaceElements[i+1].Clone());
+                    triangleFaceList.Add(triangleFace);
+                }
+            }
+
+            return triangleFaceList;
+        }
 
         public object Clone()
         {

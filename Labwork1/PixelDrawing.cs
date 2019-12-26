@@ -49,6 +49,7 @@ namespace Labwork1
                 {
                     foreach (Pixel pixel in pixels)
                     {
+                        if (pixel == null) { continue; }
                         if (pixel.X > 0 && pixel.X < width && pixel.Y > 0 && pixel.Y < height)
                         {
                             long bufferWithOffset = pBackBuffer + pixel.Y * backBufferStride + pixel.X * writeableBitmap.Format.BitsPerPixel / 8;

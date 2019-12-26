@@ -1,121 +1,85 @@
 ﻿using Models;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
+using System.Windows.Media;
 
 namespace DrawingAlgorithm
 {
     public static class Bresenham
     {
-        public static IEnumerable<Pixel> GetPixels(int x1, int y1, int x2, int y2, int width, int height)
+        public static IEnumerable<Pixel> GetPixels(int x1, int y1, float z1, int x2, int y2, float z2, int width, int height, Bgr24Bitmap bitmap, ZBuffer zBuf)
         {
             List<Pixel> list = new List<Pixel>();
-            if (((x1 > 0 && x1 < width) || (x2 > 0 && x2 < width)) && ((y1 > 0 && y1 < height) || (y2 > 0 && y2 < height)))
+            int deltaX = Math.Abs(x2 - x1);
+            int deltaY = Math.Abs(y2 - y1);
+            float deltaZ = Math.Abs(z2 - z1);
+            int signX = x1 < x2 ? 1 : -1;
+            int signY = y1 < y2 ? 1 : -1;
+            float signZ = z1 < z2 ? 1 : -1;
+
+            float curZ = z1;
+            float z3 = deltaZ / deltaY;
+
+            int error = deltaX - deltaY;
+
+            list.Add(new Pixel(x2, y2, z2));
+
+            if (x2 > 0 && x2 < zBuf.Width && y2 > 0 && y2 < zBuf.Height)
             {
-                x1 = x1 < 0 ? 0 : x1;
-                x2 = x2 < 0 ? 0 : x2;
-                y1 = y1 < 0 ? 0 : y1;
-                y2 = y2 < 0 ? 0 : y2;
-                x1 = x1 > width ? width : x1;
-                x2 = x2 > width ? width : x2;
-                y1 = y1 > height ? height : y1;
-                y2 = y2 > height ? height : y2;
-
-                int deltaX = Math.Abs(x2 - x1);
-                int deltaY = Math.Abs(y2 - y1);
-                int signX = x1 < x2 ? 1 : -1;
-                int signY = y1 < y2 ? 1 : -1;
-
-                int error = deltaX - deltaY;
-
-                list.Add(new Pixel(x2, y2));
-
-                while (x1 != x2 || y1 != y2)
+                if (z2 <= zBuf[x2, y2])
                 {
-                    list.Add(new Pixel( x1, y1));
-
-                    int error2 = error * 2;
-
-                    if (error2 > -deltaY)
+                    if (z2 > 0 && z2 < 1)
                     {
-                        error -= deltaY;
-                        x1 += signX;
+                        zBuf[x2, y2] = z2;
+                        bitmap[x2, y2] = Color.FromRgb(33, 105, 72); //new Vector4(0, 0, 255, 255);
                     }
-                    if (error2 < deltaX)
-                    {
-                        error += deltaX;
-                        y1 += signY;
-                    }
+                }
+            }
+
+            while (x1 != x2 || y1 != y2)
+            {
+                list.Add(new Pixel(x1, y1, curZ));
+
+                int error2 = error * 2;
+
+                if (error2 > -deltaY)
+                {
+                    error -= deltaY;
+                    x1 += signX;
+                }
+                if (error2 < deltaX)
+                {
+                    error += deltaX;
+                    y1 += signY;
+                    curZ += signZ * z3;
                 }
             }
             return list;
         }
 
-        //public static List<PixelInfo> GetAllPixels(Group drawingObject, int width, int height)
-        //{
-        //    var list = new List<PixelInfo>();
-        //    int point1, point2;
+        private static bool IsFaceVisible(List<Vector4> pointsList, List<Vector3> face)
+        {
+            bool result = true;
+            int indexPoint1 = (int)face[0].X;
+            int indexPoint2 = (int)face[1].X;
+            int indexPoint3 = (int)face[2].X;
+            Vector4 point1 = pointsList[indexPoint1];
+            Vector4 point2 = pointsList[indexPoint2];
+            Vector4 point3 = pointsList[indexPoint3];
 
-        //    foreach (var face in drawingObject.Faces)
-        //    {
-        //        for (int i = 0; i < face.FaceElements.Count - 1; i++)
-        //        {
-        //            point1 = (int)face.FaceElements[i].VertexIndex - 1;
-        //            point2 = (int)face.FaceElements[i+1].VertexIndex - 1;
+            Vector4 vector1 = point2 - point1;
+            Vector4 vector2 = point3 - point2;
+            Vector3 vector1XYZ = new Vector3(vector1.X, vector1.Y, vector1.Z);
+            Vector3 vector2XYZ = new Vector3(vector2.X, vector2.Y, vector2.Z);
+            Vector3 normal = Vector3.Cross(vector1XYZ, vector2XYZ);
 
-        //            AddPixelsForLine(list, (int)drawingObject.Vertices[point1].X, (int)drawingObject.pointsList[point1].Y,
-        //            (int)drawingObject.pointsList[point2].X, (int)drawingObject.pointsList[point2].Y, width, height);
-        //        }
+            if (normal.Z >= 0)
+            {
+                result = false;
+            }
 
-        //        point1 = (int)face[0] - 1;
-        //        point2 = (int)face[face.Count - 1] - 1;
-
-        //        AddPixelsForLine(list, (int)drawingObject.pointsList[point1].X, (int)drawingObject.pointsList[point1].Y,
-        //            (int)drawingObject.pointsList[point2].X, (int)drawingObject.pointsList[point2].Y, width, height);
-        //    }
-
-        //    return list;
-        //}
-
-        //private static void AddPixelsForLine(List<PixelInfo> list, int x1, int y1, int x2, int y2, int width, int height)
-        //{
-        //    if (((x1 > 0 && x1 < width) || (x2 > 0 && x2 < width)) && ((y1 > 0 && y1 < height) || (y2 > 0 && y2 < height)))
-        //    {
-        //        x1 = x1 < 0 ? 0 : x1;
-        //        x2 = x2 < 0 ? 0 : x2;
-        //        y1 = y1 < 0 ? 0 : y1;
-        //        y2 = y2 < 0 ? 0 : y2;
-        //        x1 = x1 > width ? width : x1;
-        //        x2 = x2 > width ? width : x2;
-        //        y1 = y1 > height ? height : y1;
-        //        y2 = y2 > height ? height : y2;
-
-        //        int deltaX = Math.Abs(x2 - x1);
-        //        int deltaY = Math.Abs(y2 - y1);
-        //        int signX = x1 < x2 ? 1 : -1;
-        //        int signY = y1 < y2 ? 1 : -1;
-
-        //        int error = deltaX - deltaY;
-
-        //        list.Add(new PixelInfo() { X = x2, Y = y2, Color = Color.FromArgb(255, 255, 0, 0) });
-
-        //        while (x1 != x2 || y1 != y2)
-        //        {
-        //            list.Add(new PixelInfo() { X = x1, Y = y1, Color = Color.FromArgb(255, 255, 0, 0) });
-
-        //            int error2 = error * 2;
-
-        //            if (error2 > -deltaY)
-        //            {
-        //                error -= deltaY;
-        //                x1 += signX;
-        //            }
-        //            if (error2 < deltaX)
-        //            {
-        //                error += deltaX;
-        //                y1 += signY;
-        //            }
-        //        }
-        //    }
-        //}
+            return result;
+        }
     }
 }

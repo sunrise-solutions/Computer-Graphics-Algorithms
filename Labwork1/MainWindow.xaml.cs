@@ -28,7 +28,7 @@ namespace Labwork1
     {
         string filePath = @"..\..\..\obj_files\african_head.obj";
         string filePathMiniature = @"..\..\..\obj_files\african_head.obj";
-        float scale = 50, aspectRation = 1;
+        float scale = 100, aspectRation = 1;
         int windowWidth = 2000, windowHeight = 1400, maxDx = 1000, maxDy = 700;
         int miniatureWidth = 1000, miniatureHeight = 700, minDx = 500, minDy = 350;
         float fieldOfView = (float)(45 * Math.PI / 180), defaultNearPlaneDistance = 1, defaultFarPlaneDistance = 1000;
@@ -37,7 +37,7 @@ namespace Labwork1
         int minAngle = -180, maxAngle = 180;
         float cameraX = 0, cameraY = 0, cameraZ = 0, modelX = 0, modelY = 0, modelZ = 0, cameraAroundX = 0, cameraAroundY = 0, cameraAroundZ = 0, modelAroundX = 0, modelAroundY = 0, modelAroundZ = 0;
         GraphObject globalModel, globalMiniature;
-        int delay = 200;
+        int delay = 0;
 
         public MainWindow()
         {
@@ -79,6 +79,9 @@ namespace Labwork1
             Matrix4x4 result;
             foreach (Group group in graphObject.Groups)
             {
+                WriteableBitmap source = new WriteableBitmap(windowWidth, windowHeight, 96, 96, PixelFormats.Bgra32, null);
+                Bgr24Bitmap bitmap = new Bgr24Bitmap(source);
+                bitmap.Source.Lock();
                 result = GetResultMatrix(Matrix4x4.CreateTranslation(0, 0, 0), Matrix4x4.CreateRotationX(0), Matrix4x4.CreateRotationY(0), Matrix4x4.CreateRotationZ(0), Matrix4x4.CreateScale((float)scale, (float)scale, (float)scale));
                 graphObject_copy = (GraphObject)graphObject.Clone();
                 for (int i = 0; i < graphObject_copy.Groups[0].Vertices.Count; i++)
@@ -91,8 +94,10 @@ namespace Labwork1
                     vertex.Z = vectorResult.Z;
                     vertex.W = vectorResult.W;
                 }
-                pixels = await GetListAsync(graphObject_copy.Groups[0], dx, dy, -1);
-                targetPlace.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels);
+                pixels = await GetListAsync(graphObject_copy.Groups[0], dx, dy, -1, windowWidth, windowHeight, bitmap);
+                targetPlace.Source = bitmap.Source;
+                bitmap.Source.Unlock();
+                //targetPlace.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels);
             }
         }
 
@@ -104,21 +109,26 @@ namespace Labwork1
             foreach (Group group in globalMiniature.Groups)
             {
                 //result = GetResultMatrix(Matrix4x4.CreateTranslation(0, 0, 0), Matrix4x4.CreateRotationX(0), Matrix4x4.CreateRotationY(0), Matrix4x4.CreateRotationZ(0), Matrix4x4.CreateScale((float)scale, (float)scale, (float)scale));
+                WriteableBitmap source = new WriteableBitmap(miniatureWidth, miniatureHeight, 96, 96, PixelFormats.Bgra32, null);
+                Bgr24Bitmap bitmap = new Bgr24Bitmap(source);
+                bitmap.Source.Lock();
                 graphObject_copy = (GraphObject)globalMiniature.Clone();
                 for (int i = 0; i < graphObject_copy.Groups[0].Vertices.Count; i++)
                 {
                     Vertex vertex = graphObject_copy.Groups[0].Vertices[i];
                     Vector4 vector = new Vector4(vertex.X, vertex.Y, vertex.Z, vertex.W);
                     Vector4 vectorResult = Vector4.Transform(vector, result);
-                    //vectorResult /= vertex.W;
+                    vectorResult /= vertex.W;
                     //vectorResult = Vector4.Transform(vectorResult, viewport);
                     vertex.X = vectorResult.X;
                     vertex.Y = vectorResult.Y;
                     vertex.Z = vectorResult.Z;
                     vertex.W = vectorResult.W;
                 }
-                pixels = await GetListAsync(graphObject_copy.Groups[0], minDx, minDy, -1);
-                MiniatureModel.Source = PixelDrawing.GetBitmap(miniatureWidth, miniatureHeight, pixels);
+                pixels = await GetListAsync(graphObject_copy.Groups[0], minDx, minDy, -1, miniatureWidth, miniatureHeight, bitmap);
+                MiniatureModel.Source = bitmap.Source;
+                bitmap.Source.Unlock();
+                //MiniatureModel.Source = PixelDrawing.GetBitmap(miniatureWidth, miniatureHeight, pixels);
             }
             return true;
         }
@@ -139,6 +149,9 @@ namespace Labwork1
                 {
                     while (value < 10000)
                     {
+                        WriteableBitmap source = new WriteableBitmap(windowWidth, windowHeight, 96, 96, PixelFormats.Bgra32, null);
+                        Bgr24Bitmap bitmap = new Bgr24Bitmap(source);
+                        bitmap.Source.Lock();
                         result = GetResultMatrix(Matrix4x4.CreateTranslation(0, 0, 0), Matrix4x4.CreateRotationX(0), Matrix4x4.CreateRotationY((float)(value)), Matrix4x4.CreateRotationZ(0), Matrix4x4.CreateScale((float)scale * 2, (float)scale * 2, (float)scale * 2));
                         graphObject_copy = (GraphObject)graphObject.Clone();
                         for (int i = 0; i < graphObject_copy.Groups[0].Vertices.Count; i++)
@@ -151,9 +164,11 @@ namespace Labwork1
                             vertex.Z = vectorResult.Z;
                             vertex.W = vectorResult.W;
                         }
-                        pixels = await GetListAsync(graphObject_copy.Groups[0], maxDx, maxDy, -1);
-                        GraphicModel.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels);
+                        pixels = await GetListAsync(graphObject_copy.Groups[0], maxDx, maxDy, -1, windowWidth, windowHeight, bitmap);
+                        //GraphicModel.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels);
                         value += 1 * Math.PI / 180;
+                        GraphicModel.Source = bitmap.Source;
+                        bitmap.Source.Unlock();
                     }
                 }
             } else
@@ -164,6 +179,9 @@ namespace Labwork1
                 Matrix4x4 result, viewport;
                 foreach (Group group in graphObject.Groups)
                 {
+                    WriteableBitmap source = new WriteableBitmap(windowWidth, windowHeight, 96, 96, PixelFormats.Bgra32, null);
+                    Bgr24Bitmap bitmap = new Bgr24Bitmap(source);
+                    bitmap.Source.Lock();
                     result = GetOptionsMatrix(options, windowWidth, windowHeight);
                     viewport = GetViewPort(0, 0, windowWidth, windowHeight);
                     graphObject_copy = (GraphObject)graphObject.Clone();
@@ -172,15 +190,18 @@ namespace Labwork1
                         Vertex vertex = graphObject_copy.Groups[0].Vertices[i];
                         Vector4 vector = new Vector4(vertex.X, vertex.Y, vertex.Z, vertex.W);
                         Vector4 vectorResult = Vector4.Transform(vector, result);
-                        //vectorResult /= vertex.W;
+                        vectorResult /= vertex.W;
                         //vectorResult = Vector4.Transform(vectorResult, viewport);
                         vertex.X = vectorResult.X;
                         vertex.Y = vectorResult.Y;
                         vertex.Z = vectorResult.Z;
                         vertex.W = vectorResult.W;
                     }
-                    pixels = await GetListAsync(graphObject_copy.Groups[0], maxDx, maxDy, -1);
-                    GraphicModel.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels);
+                    pixels = await GetListAsync(graphObject_copy.Groups[0], maxDx, maxDy, -1, windowWidth, windowHeight, bitmap);
+                    GraphicModel.Source = bitmap.Source;
+                    bitmap.Source.Unlock();
+                    
+                    //if (pixels != null) { GraphicModel.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels); }
                 }
             }
             
@@ -199,14 +220,17 @@ namespace Labwork1
             }
         }
 
-        private async Task<List<Pixel>> GetListAsync(Group group, int dx, int dy, int viceVersa)
+        private async Task<List<Pixel>> GetListAsync(Group group, int dx, int dy, int viceVersa, int width, int height, Bgr24Bitmap bitmap)
         {
             return await Task.Run(() =>
             {
                 List<Pixel> pixels = new List<Pixel>();
-
-                foreach (Face face in group.Faces)
+                int count = 0;
+                ZBuffer zBuf = new ZBuffer(width, height);
+                Parallel.ForEach(group.Faces, face =>
                 {
+                    List<Pixel> pixelsForSide = new List<Pixel>();
+                    List<Pixel> pixelsInSide = new List<Pixel>();
                     Vertex vertex0, vertex1;
                     int index0, index1;
                     for (int i = 0; i < face.FaceElements.Count - 1; i++)
@@ -215,25 +239,29 @@ namespace Labwork1
                         index1 = (face.FaceElements.ElementAt(i + 1).VertexIndex != -2) ? face.FaceElements.ElementAt(i + 1).VertexIndex : (group.Vertices.Count - 1);
                         vertex0 = group.Vertices.ElementAt(index0);
                         vertex1 = group.Vertices.ElementAt(index1);
-                        pixels.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), windowWidth, windowHeight));
+                        pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), (int)(vertex0.Z), (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), (int)(vertex1.Z), windowWidth, windowHeight, bitmap, zBuf));
                     }
                     index0 = (face.FaceElements.ElementAt(0).VertexIndex != -2) ? face.FaceElements.ElementAt(0).VertexIndex : (group.Vertices.Count - 1);
                     index1 = (face.FaceElements.ElementAt(face.FaceElements.Count - 1).VertexIndex != -2) ? face.FaceElements.ElementAt(face.FaceElements.Count - 1).VertexIndex : (group.Vertices.Count - 1);
                     vertex0 = group.Vertices.ElementAt(index0);
                     vertex1 = group.Vertices.ElementAt(index1);
-                    pixels.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), windowWidth, windowHeight));
-                }
-
+                    pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), vertex0.Z, (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), vertex1.Z, windowWidth, windowHeight, bitmap, zBuf));
+                    RastAlgorithm.DrawPixelForRasterization(pixelsForSide, bitmap, zBuf);
+                    //pixels.AddRange(pixelsForSide);
+                    //pixelsInSide.AddRange(RastAlgorithm.DrawPixelForRasterization(pixelsForSide, bitmap, zBuf));
+                    //pixels.AddRange(pixelsInSide);
+                    count++;
+                });
                 return pixels;
             });
         }
 
         public Matrix4x4 GetOptionsMatrix(TransformOptions options, int width, int height)
         {
-            Matrix4x4 model = Matrix4x4.CreateScale(options.Scale) * Matrix4x4.CreateFromYawPitchRoll(options.ModelAroundX, options.ModelAroundY, options.ModelAroundZ)
+            Matrix4x4 model = Matrix4x4.CreateScale(options.Scale) * Matrix4x4.CreateFromYawPitchRoll(options.ModelAroundY, options.ModelAroundX, options.ModelAroundZ)
                 * Matrix4x4.CreateTranslation(options.ModelX, options.ModelY, options.ModelZ);
             Matrix4x4 view = Matrix4x4.CreateTranslation(-new Vector3(options.CameraX, options.CameraY, options.CameraZ))
-                * Matrix4x4.Transpose(Matrix4x4.CreateFromYawPitchRoll(options.CameraAroundX, options.CameraAroundY, options.CameraAroundZ));
+                * Matrix4x4.Transpose(Matrix4x4.CreateFromYawPitchRoll(options.CameraAroundY, options.CameraAroundX, options.CameraAroundZ));
             Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView(options.FieldOfView, aspectRation, defaultNearPlaneDistance, defaultFarPlaneDistance);
 
             Matrix4x4 mvp = model * view * projection;
@@ -259,19 +287,7 @@ namespace Labwork1
                     ModelAroundX = (float)(modelAroundX * Math.PI / 180),
                     ModelAroundY = (float)(modelAroundY * Math.PI / 180),
                     ModelAroundZ = (float)(modelAroundZ * Math.PI / 180),
-                    FieldOfView = (float)(fieldOfView * Math.PI / 180),
-                    //CameraX = (stopCameraX) ? cameraX : float.Parse(CameraX.Text, CultureInfo.InvariantCulture.NumberFormat),
-                    //CameraY = (stopCameraY) ? cameraY : float.Parse(CameraY.Text, CultureInfo.InvariantCulture.NumberFormat),
-                    //CameraZ = (stopCameraZ) ? cameraZ : float.Parse(CameraZ.Text, CultureInfo.InvariantCulture.NumberFormat),
-                    //CameraAroundX = (stopCameraAroundX) ? cameraAroundX : (float)(float.Parse(CameraAroundX.Text, CultureInfo.InvariantCulture.NumberFormat) * Math.PI / 180),
-                    //CameraAroundY = (stopCameraAroundY) ? cameraAroundY : (float)(float.Parse(CameraAroundY.Text, CultureInfo.InvariantCulture.NumberFormat) * Math.PI / 180),
-                    //CameraAroundZ = (stopCameraAroundZ) ? cameraAroundZ : (float)(float.Parse(CameraAroundX.Text, CultureInfo.InvariantCulture.NumberFormat) * Math.PI / 180),
-                    //ModelX = (stopModelX) ? modelX : float.Parse(CameraZ.Text, CultureInfo.InvariantCulture.NumberFormat),
-                    //ModelY = (stopModelY) ? modelY : float.Parse(CameraZ.Text, CultureInfo.InvariantCulture.NumberFormat),
-                    //ModelZ = (stopModelZ) ? modelZ : float.Parse(CameraZ.Text, CultureInfo.InvariantCulture.NumberFormat),
-                    //ModelAroundX = (stopModelAroundX) ? modelAroundX : (float)(float.Parse(ModelAroundX.Text, CultureInfo.InvariantCulture.NumberFormat) * Math.PI / 180),
-                    //ModelAroundY = (stopModelAroundY) ? modelAroundY : (float)(float.Parse(ModelAroundY.Text, CultureInfo.InvariantCulture.NumberFormat) * Math.PI / 180),
-                    //ModelAroundZ = (stopModelAroundZ) ? modelAroundZ : (float)(float.Parse(ModelAroundZ.Text, CultureInfo.InvariantCulture.NumberFormat) * Math.PI / 180)
+                    FieldOfView = (float)(fieldOfView * Math.PI / 180)
                 };
                 return options;
             } catch
@@ -298,26 +314,6 @@ namespace Labwork1
                 if (i > maxRange) { i = minRange; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
             }
-
-            //float scaling = (float)scaleSlider.Value;
-            //float modelYaw = (float)(modelYawSlider.Value * Math.PI / 180);
-            //float modelPitch = (float)(modelPitchSlider.Value * Math.PI / 180);
-            //float modelRoll = (float)(modelRollSlider.Value * Math.PI / 180);
-            //float translationX = (float)translationXSlider.Value;
-            //float translationY = (float)translationYSlider.Value;
-            //float translationZ = (float)translationZSlider.Value;
-            //float cameraPositionX = (float)CameraPositionXSlider.Value;
-            //float cameraPositionY = (float)CameraPositionYSlider.Value;
-            //float cameraPositionZ = (float)CameraPositionZSlider.Value;
-            //float cameraYaw = (float)(CameraYawSlider.Value * Math.PI / 180);
-            //float cameraPitch = (float)(CameraPitchSlider.Value * Math.PI / 180);
-            //float cameraRoll = (float)(CameraRollSlider.Value * Math.PI / 180);
-            //float fieldOfView = (float)(FieldOfViewSlider.Value * Math.PI / 180);
-            //float aspectRatio = (float)width / height;
-            //float nearPlaneDistance = (float)NearPlaneDistanceSlider.Value;
-            //float farPlaneDistance = (float)FarPlaneDistanceSlider.Value;
-            //int xMin = 0;
-            //int yMin = 0;
         }
 
         async public void ChangeCameraY(object sender, RoutedEventArgs e)
@@ -401,7 +397,6 @@ namespace Labwork1
                 cameraAroundX = i; i++;
                 if (i > maxAngle) { i = minAngle; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
-                System.Threading.Thread.Sleep(delay);
             }
         }
 
@@ -416,7 +411,6 @@ namespace Labwork1
                 cameraAroundY = i; i++;
                 if (i > maxAngle) { i = minAngle; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
-                System.Threading.Thread.Sleep(delay);
             }
         }
 
@@ -431,7 +425,6 @@ namespace Labwork1
                 cameraAroundZ = i; i++;
                 if (i > maxAngle) { i = minAngle; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
-                System.Threading.Thread.Sleep(delay);
             }
         }
 
@@ -446,7 +439,6 @@ namespace Labwork1
                 modelAroundX = i; i++;
                 if (i > maxAngle) { i = minAngle; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
-                System.Threading.Thread.Sleep(delay);
             }
         }
 
@@ -461,7 +453,6 @@ namespace Labwork1
                 modelAroundY = i; i++;
                 if (i > maxAngle) { i = minAngle; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
-                System.Threading.Thread.Sleep(delay);
             }
         }
 
@@ -476,7 +467,6 @@ namespace Labwork1
                 cameraAroundZ = i; i++;
                 if (i > maxAngle) { i = minAngle; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
-                System.Threading.Thread.Sleep(delay);
             }
         }
 
@@ -491,7 +481,6 @@ namespace Labwork1
                 fieldOfView = i; i++;
                 if (i > 180) { i = 1; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
-                System.Threading.Thread.Sleep(delay);
             }
         }
 
@@ -506,7 +495,6 @@ namespace Labwork1
                 scale = i; i++;
                 if (i > 500) { i = 1; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
-                System.Threading.Thread.Sleep(delay);
             }
         }
 
