@@ -12,7 +12,7 @@ namespace DrawingAlgorithm
 {
     public static class RastAlgorithm
     {
-        public static IEnumerable<Pixel> DrawPixelForRasterization(List<Pixel> sidesList, Bgr24Bitmap bitmap, ZBuffer zBuf)
+        public static IEnumerable<Pixel> DrawPixelForRasterization(List<Pixel> sidesList, Bgr24Bitmap bitmap, ZBuffer zBuf, Color color)
         {
             List<Pixel> list = new List<Pixel>();
             int minY, maxY;
@@ -35,8 +35,8 @@ namespace DrawingAlgorithm
                         if (curZ <= zBuf[x, y])
                         {
                             zBuf[x, y] = curZ;
-                            list.Add(new Pixel(x, y, (int)curZ) { Color = System.Drawing.Color.White });
-                            bitmap[x, y] = Color.FromRgb(33, 105, 72); //new Vector4(255, 0, 0, 255);
+                            list.Add(new Pixel(x, y, (int)curZ));
+                            bitmap[x, y] = color; //Color.FromRgb(33, 105, 72); //new Vector4(255, 0, 0, 255);
                         }
                     }
                 }
@@ -56,7 +56,6 @@ namespace DrawingAlgorithm
                 min = 0;
                 max = 0;
             }
-            
         }
 
         private static void FindStartAndEndXByY(List<Pixel> sidesList, int y, out Pixel xStartPixel, out Pixel xEndPixel)

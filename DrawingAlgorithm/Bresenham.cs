@@ -8,7 +8,7 @@ namespace DrawingAlgorithm
 {
     public static class Bresenham
     {
-        public static IEnumerable<Pixel> GetPixels(int x1, int y1, float z1, int x2, int y2, float z2, int width, int height, Bgr24Bitmap bitmap, ZBuffer zBuf)
+        public static IEnumerable<Pixel> GetPixels(int x1, int y1, float z1, int x2, int y2, float z2, int width, int height, Bgr24Bitmap bitmap, ZBuffer zBuf, Color color)
         {
             List<Pixel> list = new List<Pixel>();
             int deltaX = Math.Abs(x2 - x1);
@@ -29,17 +29,33 @@ namespace DrawingAlgorithm
             {
                 if (z2 <= zBuf[x2, y2])
                 {
-                    if (z2 > 0 && z2 < 1)
-                    {
-                        zBuf[x2, y2] = z2;
-                        bitmap[x2, y2] = Color.FromRgb(33, 105, 72); //new Vector4(0, 0, 255, 255);
-                    }
+                    //if (z2 > 0 && z2 < 1)
+                    //{
+                    //    zBuf[x2, y2] = z2;
+                    //    bitmap[x2, y2] = Color.FromRgb(33, 105, 72); //new Vector4(0, 0, 255, 255);
+                    //}
+                    zBuf[x2, y2] = z2;
+                    bitmap[x2, y2] = color; //Color.FromRgb(0, 0, 255); //new Vector4(0, 0, 255, 255);
                 }
             }
 
             while (x1 != x2 || y1 != y2)
             {
                 list.Add(new Pixel(x1, y1, curZ));
+
+                if (x1 > 0 && x1 < zBuf.Width && y1 > 0 && y1 < zBuf.Height)
+                {
+                    if (curZ <= zBuf[(int)x1, (int)y1])
+                    {
+                        //if (curZ > 0 && curZ < 1)
+                        //{
+                        //    zBuf[(int)x1, (int)y1] = curZ; //!!!! curZ????? point2.Z
+                        //    bitmap[(int)x1, (int)y1] = Color.FromRgb(0, 0, 255);
+                        //}
+                        zBuf[(int)x1, (int)y1] = curZ; //!!!! curZ????? point2.Z
+                        bitmap[(int)x1, (int)y1] = color;//Color.FromRgb(0, 0, 255);
+                    }
+                }
 
                 int error2 = error * 2;
 

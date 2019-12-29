@@ -26,8 +26,8 @@ namespace Labwork1
     /// </summary>
     public partial class MainWindow : Window
     {
-        string filePath = @"..\..\..\obj_files\moon.obj";
-        string filePathMiniature = @"..\..\..\obj_files\moon.obj";
+        string filePath = @"..\..\..\obj_files\african_head.obj";
+        string filePathMiniature = @"..\..\..\obj_files\african_head.obj";
         float scale = 100, aspectRation = 1;
         int windowWidth = 2000, windowHeight = 1400, maxDx = 1000, maxDy = 700;
         int miniatureWidth = 1000, miniatureHeight = 700, minDx = 500, minDy = 350;
@@ -94,6 +94,15 @@ namespace Labwork1
                     vertex.Z = vectorResult.Z;
                     vertex.W = vectorResult.W;
                 }
+                for (int i = 0; i < graphObject_copy.Groups[0].VertexNormals.Count; i++)
+                {
+                    VertexNormal vertexNormal = graphObject_copy.Groups[0].VertexNormals[i];
+                    Vector3 vector = new Vector3(vertexNormal.X, vertexNormal.Y, vertexNormal.Z);
+                    Vector3 vectorResult = Vector3.Normalize(Vector3.TransformNormal(vector, result));
+                    vertexNormal.X = vectorResult.X;
+                    vertexNormal.Y = vectorResult.Y;
+                    vertexNormal.Z = vectorResult.Z;
+                }
                 pixels = await GetListAsync(graphObject_copy.Groups[0], dx, dy, -1, windowWidth, windowHeight, bitmap);
                 targetPlace.Source = bitmap.Source;
                 bitmap.Source.Unlock();
@@ -125,6 +134,16 @@ namespace Labwork1
                     vertex.Z = vectorResult.Z;
                     vertex.W = vectorResult.W;
                 }
+                for (int i = 0; i < graphObject_copy.Groups[0].VertexNormals.Count; i++)
+                {
+                    VertexNormal vertexNormal = graphObject_copy.Groups[0].VertexNormals[i];
+                    Vector3 vector = new Vector3(vertexNormal.X, vertexNormal.Y, vertexNormal.Z);
+                    Vector3 vectorResult = Vector3.Normalize(Vector3.TransformNormal(vector, result));
+                    vertexNormal.X = vectorResult.X;
+                    vertexNormal.Y = vectorResult.Y;
+                    vertexNormal.Z = vectorResult.Z;
+                }
+                //VertexNormal vertexNormal = graphObject_copy.Groups[0].VertexNormals[i];
                 pixels = await GetListAsync(graphObject_copy.Groups[0], minDx, minDy, -1, miniatureWidth, miniatureHeight, bitmap);
                 MiniatureModel.Source = bitmap.Source;
                 bitmap.Source.Unlock();
@@ -164,6 +183,15 @@ namespace Labwork1
                             vertex.Z = vectorResult.Z;
                             vertex.W = vectorResult.W;
                         }
+                        for (int i = 0; i < graphObject_copy.Groups[0].VertexNormals.Count; i++)
+                        {
+                            VertexNormal vertexNormal = graphObject_copy.Groups[0].VertexNormals[i];
+                            Vector3 vector = new Vector3(vertexNormal.X, vertexNormal.Y, vertexNormal.Z);
+                            Vector3 vectorResult = Vector3.Normalize(Vector3.TransformNormal(vector, result));
+                            vertexNormal.X = vectorResult.X;
+                            vertexNormal.Y = vectorResult.Y;
+                            vertexNormal.Z = vectorResult.Z;
+                        }
                         pixels = await GetListAsync(graphObject_copy.Groups[0], maxDx, maxDy, -1, windowWidth, windowHeight, bitmap);
                         //GraphicModel.Source = PixelDrawing.GetBitmap(windowWidth, windowHeight, pixels);
                         value += 1 * Math.PI / 180;
@@ -196,6 +224,15 @@ namespace Labwork1
                         vertex.Y = vectorResult.Y;
                         vertex.Z = vectorResult.Z;
                         vertex.W = vectorResult.W;
+                    }
+                    for (int i = 0; i < graphObject_copy.Groups[0].VertexNormals.Count; i++)
+                    {
+                        VertexNormal vertexNormal = graphObject_copy.Groups[0].VertexNormals[i];
+                        Vector3 vector = new Vector3(vertexNormal.X, vertexNormal.Y, vertexNormal.Z);
+                        Vector3 vectorResult = Vector3.Normalize(Vector3.TransformNormal(vector, result));
+                        vertexNormal.X = vectorResult.X;
+                        vertexNormal.Y = vectorResult.Y;
+                        vertexNormal.Z = vectorResult.Z;
                     }
                     pixels = await GetListAsync(graphObject_copy.Groups[0], maxDx, maxDy, -1, windowWidth, windowHeight, bitmap);
                     GraphicModel.Source = bitmap.Source;
@@ -235,20 +272,40 @@ namespace Labwork1
                         List<Pixel> pixelsInSide = new List<Pixel>();
                         Vertex vertex0, vertex1;
                         int index0, index1;
+
+                        Vector3 lightingVector = new Vector3(0, 0, 1);
+
+                        int ind0 = (face.FaceElements.ElementAt(0).VertexNormalIndex != null) ? (int)face.FaceElements.ElementAt(0).VertexNormalIndex : 1;
+                        Vector3 point0Normal = new Vector3(group.VertexNormals[ind0 - 1].X, group.VertexNormals[ind0 - 1].Y, group.VertexNormals[ind0 - 1].Z);
+
+                        int ind1 = (face.FaceElements.ElementAt(1).VertexNormalIndex != null) ? (int)face.FaceElements.ElementAt(1).VertexNormalIndex : 1;
+                        Vector3 point1Normal = new Vector3(group.VertexNormals[ind1 - 1].X, group.VertexNormals[ind1 - 1].Y, group.VertexNormals[ind1 - 1].Z);
+
+                        int ind2 = (face.FaceElements.ElementAt(2).VertexNormalIndex != null) ? (int)face.FaceElements.ElementAt(2).VertexNormalIndex : 1;
+                        Vector3 point2Normal = new Vector3(group.VertexNormals[ind2 - 1].X, group.VertexNormals[ind2 - 1].Y, group.VertexNormals[ind2 - 1].Z);
+
+                        Color color = Color.FromArgb(255, 255, 0, 0);
+                        Color point1Color = Lambert.GetPointColor(point0Normal, lightingVector, color);
+                        Color point2Color = Lambert.GetPointColor(point1Normal, lightingVector, color);
+                        Color point3Color = Lambert.GetPointColor(point2Normal, lightingVector, color);
+                        Color faceColor = PlaneShading.GetAverageColor(point1Color, point2Color, point3Color);
+
                         for (int i = 0; i < face.FaceElements.Count - 1; i++)
                         {
                             index0 = (face.FaceElements.ElementAt(i).VertexIndex != -2) ? face.FaceElements.ElementAt(i).VertexIndex : (group.Vertices.Count - 1);
                             index1 = (face.FaceElements.ElementAt(i + 1).VertexIndex != -2) ? face.FaceElements.ElementAt(i + 1).VertexIndex : (group.Vertices.Count - 1);
                             vertex0 = group.Vertices.ElementAt(index0);
                             vertex1 = group.Vertices.ElementAt(index1);
-                            pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), (int)(vertex0.Z), (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), (int)(vertex1.Z), windowWidth, windowHeight, bitmap, zBuf));
+                            pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), (int)(vertex0.Z), (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), (int)(vertex1.Z), windowWidth, windowHeight, bitmap, zBuf, faceColor));
                         }
                         index0 = (face.FaceElements.ElementAt(0).VertexIndex != -2) ? face.FaceElements.ElementAt(0).VertexIndex : (group.Vertices.Count - 1);
                         index1 = (face.FaceElements.ElementAt(face.FaceElements.Count - 1).VertexIndex != -2) ? face.FaceElements.ElementAt(face.FaceElements.Count - 1).VertexIndex : (group.Vertices.Count - 1);
                         vertex0 = group.Vertices.ElementAt(index0);
                         vertex1 = group.Vertices.ElementAt(index1);
-                        pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), vertex0.Z, (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), vertex1.Z, windowWidth, windowHeight, bitmap, zBuf));
-                        RastAlgorithm.DrawPixelForRasterization(pixelsForSide, bitmap, zBuf);
+                        pixelsForSide.AddRange(Bresenham.GetPixels((int)(vertex0.X + dx), (int)(vertex0.Y * viceVersa + dy), vertex0.Z, (int)(vertex1.X + dx), (int)(vertex1.Y * viceVersa + dy), vertex1.Z, windowWidth, windowHeight, bitmap, zBuf, faceColor));
+
+                        
+                        RastAlgorithm.DrawPixelForRasterization(pixelsForSide, bitmap, zBuf, faceColor);
                         //pixels.AddRange(pixelsForSide);
                         //pixelsInSide.AddRange(RastAlgorithm.DrawPixelForRasterization(pixelsForSide, bitmap, zBuf));
                         //pixels.AddRange(pixelsInSide);
@@ -270,15 +327,15 @@ namespace Labwork1
             Vector4 point3 = new Vector4(pointsList[indexPoint3].X, pointsList[indexPoint3].Y, pointsList[indexPoint3].Z, pointsList[indexPoint3].W);
 
             Vector4 vector1 = point2 - point1;
-            Vector4 vector2 = point3 - point2;
+            Vector4 vector2 = point3 - point1;
             Vector3 vector1XYZ = new Vector3(vector1.X, vector1.Y, vector1.Z);
             Vector3 vector2XYZ = new Vector3(vector2.X, vector2.Y, vector2.Z);
             Vector3 normal = Vector3.Cross(vector1XYZ, vector2XYZ);
 
-            //if (normal.Z >= 0)
-            //{
-            //    result = false;
-            //}
+            if (normal.Z >= 0)
+            {
+                result = false;
+            }
 
             return result;
         }
@@ -520,7 +577,7 @@ namespace Labwork1
             while (isActive)
             {
                 scale = i; i++;
-                if (i > 500) { i = 1; }
+                if (i > 100) { i = 1; }
                 await DrawMiniatureByMatrix(GetOptionsMatrix(GetUserOptions(scale), miniatureWidth, miniatureHeight), GetViewPort(0, 0, miniatureWidth, miniatureHeight));
             }
         }
